@@ -219,18 +219,7 @@ namespace Superpower.Parsers
         public static TextParser<TextSpan> Regex(string regex, RegexOptions options = RegexOptions.None)
         {
             if (regex == null) throw new ArgumentNullException(nameof(regex));
-            var re = new Regex($"^{regex}", options);
-            var expectations = new[] { $"a match for regular expression `{regex}`" };
-
-            return i =>
-            {
-                var m = re.Match(i.Source!, i.Position.Absolute, i.Length);
-                if (!m.Success || m.Length == 0)
-                    return Result.Empty<TextSpan>(i, expectations);
-
-                var remainder = i.Skip(m.Length);
-                return Result.Value(i.First(m.Length), i, remainder);
-            };
+            return Regex(new Regex($"^{regex}", options));
         }
 
         /// <summary>
