@@ -232,7 +232,29 @@ namespace Superpower.Parsers
                 return Result.Value(i.First(m.Length), i, remainder);
             };
         }
-        
+
+        /// <summary>
+        /// Parse as much of the input as matches <paramref name="regex" />.
+        /// </summary>
+        /// <param name="regex">A regular expression. The expression must be anchored with `^` (beginning of input), and must not be anchored with `$` (end of input) etc.</param>
+        /// <returns>A parser that will match text matching the expression.</returns>
+        /// <exception cref="ArgumentNullException">The expression is null.</exception>
+        public static TextParser<TextSpan> Regex(Regex regex)
+        {
+            if (regex == null) throw new ArgumentNullException(nameof(regex));
+            var expectations = new[] { $"a match for regular expression `{regex}`" };
+
+            return i =>
+            {
+                var m = regex.Match(i.Source!, i.Position.Absolute, i.Length);
+                if (!m.Success || m.Length == 0)
+                    return Result.Empty<TextSpan>(i, expectations);
+
+                var remainder = i.Skip(m.Length);
+                return Result.Value(i.First(m.Length), i, remainder);
+            };
+        }
+
         /// <summary>
         /// A handy adapter that takes any text parser, regardless of its result
         /// type, and returns the span consumed by that parser.
